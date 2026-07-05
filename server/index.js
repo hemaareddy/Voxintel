@@ -26,6 +26,13 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
 
+// Trust the first hop reverse proxy (Render, and most PaaS platforms, sit
+// in front of the app and set X-Forwarded-For) — without this, Express's
+// own IP resolution and express-rate-limit's per-IP keying can't correctly
+// read the real client IP from that header, and express-rate-limit throws
+// an ERR_ERL_UNEXPECTED_X_FORWARDED_FOR validation error on every request.
+app.set("trust proxy", 1);
+
 // ── Middleware ──────────────────────────────────────────────
 
 // CORS — allow requests from the React frontend
