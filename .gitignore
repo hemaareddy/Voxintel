@@ -1,0 +1,44 @@
+# ── Environment ───────────────────────────────────────────────
+.env
+*.env.local
+
+# ── Node.js ───────────────────────────────────────────────────
+node_modules/
+client/node_modules/
+npm-debug.log*
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+python_services/__pycache__/
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ── Uploads (resume files — don't commit user data) ───────────
+uploads/*
+!uploads/.gitkeep
+
+# ── React build output ────────────────────────────────────────
+client/build/
+
+# ── OS files ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Claude Code runtime state (keep .claude/skills/, ignore the rest) ──
+.claude/scheduled_tasks.lock

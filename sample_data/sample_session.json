@@ -1,0 +1,163 @@
+{
+  "session_info": {
+    "description": "This file documents a complete sample interview session for the demo user.",
+    "purpose": "Reference for developers to understand the data shape of a completed session.",
+    "note": "The seed.js script creates a real MongoDB session using the demo user account."
+  },
+
+  "config": {
+    "role": "Full Stack Developer",
+    "company": "Google",
+    "interviewType": "Technical Interview",
+    "difficulty": "medium",
+    "questionCount": 5
+  },
+
+  "answers": [
+    {
+      "question": "What is the difference between == and === in JavaScript?",
+      "category": "Frontend Development",
+      "difficulty": "easy",
+      "userAnswer": "The == operator checks for value equality with type coercion, meaning JavaScript will try to convert operands to the same type before comparing. For example, '5' == 5 returns true because '5' gets coerced to 5. The === operator checks for both value and type without any coercion, so '5' === 5 returns false because they are different types. It's best practice to always use === to avoid unexpected bugs from implicit type conversions.",
+      "answerMode": "text",
+      "timeTakenSeconds": 45,
+      "scores": {
+        "semantic": 88,
+        "keyword": 82,
+        "completeness": 79,
+        "overall": 84
+      },
+      "confidence": {
+        "score": 78,
+        "filler_word_count": 1,
+        "speech_speed": "normal",
+        "feedback": "Confident, direct answer with good use of examples."
+      },
+      "plagiarism": {
+        "score": 5,
+        "ai_score": 8,
+        "is_original": true,
+        "feedback": "Answer appears original and written in candidate's own words."
+      },
+      "feedback": "Overall performance: good (84/100). Well done — you demonstrated solid understanding.\n\nYour answer was semantically good — you captured the core idea well. Your answer had good depth and structure.\n\nTechnical vocabulary: good. You used the right terminology, which demonstrates solid domain knowledge.\n\nOriginality: Your answer appears original and genuine. Good job communicating in your own words.\n\nImprovement tips: Keep up the clear, direct communication style."
+    },
+    {
+      "question": "Explain the Virtual DOM in React and why it improves performance.",
+      "category": "Frontend Development",
+      "difficulty": "medium",
+      "userAnswer": "The Virtual DOM is a lightweight copy of the real DOM kept in memory by React. When state changes, React creates a new virtual DOM tree and compares it with the previous version using a diffing algorithm called reconciliation. It then figures out the minimum number of real DOM operations needed and applies only those changes. This is much faster than directly manipulating the real DOM on every state change because real DOM operations are expensive — they trigger browser reflow and repaint.",
+      "answerMode": "text",
+      "timeTakenSeconds": 52,
+      "scores": {
+        "semantic": 91,
+        "keyword": 87,
+        "completeness": 83,
+        "overall": 88
+      },
+      "confidence": {
+        "score": 82,
+        "filler_word_count": 0,
+        "speech_speed": "normal",
+        "feedback": "Very confident and structured answer."
+      },
+      "plagiarism": {
+        "score": 12,
+        "ai_score": 15,
+        "is_original": true,
+        "feedback": "Answer appears original."
+      },
+      "feedback": "Overall performance: excellent (88/100). Well done — you demonstrated solid understanding.\n\nYour answer was semantically excellent — you captured the core idea well.\n\nTechnical vocabulary: good. You used the right terminology — reconciliation, diffing, and reflow were all mentioned correctly.\n\nOriginality: Your answer appears original and genuine.\n\nImprovement tips: Challenge yourself: try explaining this concept as if teaching it to a junior developer."
+    },
+    {
+      "question": "What is the Node.js event loop?",
+      "category": "Backend Development",
+      "difficulty": "hard",
+      "userAnswer": "Node.js is single threaded and uses an event loop. When async operations are called they go to the background. The event loop checks if the call stack is empty and then processes callbacks. I think it uses libuv for the thread pool maybe.",
+      "answerMode": "text",
+      "timeTakenSeconds": 38,
+      "scores": {
+        "semantic": 42,
+        "keyword": 38,
+        "completeness": 35,
+        "overall": 39
+      },
+      "confidence": {
+        "score": 45,
+        "filler_word_count": 2,
+        "speech_speed": "normal",
+        "feedback": "Answer shows hesitation with 'I think' and 'maybe'. Needs more certainty."
+      },
+      "plagiarism": {
+        "score": 3,
+        "ai_score": 5,
+        "is_original": true,
+        "feedback": "Answer appears original."
+      },
+      "feedback": "Overall performance: below average (39/100). There's room to improve.\n\nYour answer was below average in terms of meaning. Some key concepts were missing — specifically the phases of the event loop (timers, I/O callbacks, poll, check), and the distinction between macrotasks and microtasks.\n\nTechnical vocabulary: below average. Consider incorporating: libuv, macrotask, microtask, poll phase, setImmediate.\n\nCommunication confidence: fair (45/100). You hedged with 'I think' and 'maybe' — state what you know directly.\n\nImprovement tips: Review the Node.js event loop phases in detail. Practice explaining: timers → I/O callbacks → poll → check → close callbacks, and how Promise microtasks fit in."
+    },
+    {
+      "question": "What are database transactions and ACID properties?",
+      "category": "DBMS",
+      "difficulty": "medium",
+      "userAnswer": "A transaction is a group of operations that are executed as a single unit. ACID stands for Atomicity meaning all operations complete or none do, Consistency meaning data stays valid, Isolation meaning transactions don't interfere with each other, and Durability meaning committed data persists even after crashes. These properties ensure database reliability especially in banking and financial systems where partial updates would be catastrophic.",
+      "answerMode": "text",
+      "timeTakenSeconds": 49,
+      "scores": {
+        "semantic": 85,
+        "keyword": 90,
+        "completeness": 78,
+        "overall": 85
+      },
+      "confidence": {
+        "score": 80,
+        "filler_word_count": 0,
+        "speech_speed": "normal",
+        "feedback": "Clear, direct answer covering all ACID properties."
+      },
+      "plagiarism": {
+        "score": 8,
+        "ai_score": 10,
+        "is_original": true,
+        "feedback": "Answer appears original."
+      },
+      "feedback": "Overall performance: good (85/100). Well done.\n\nYour answer was semantically good. You correctly defined all four ACID properties with a practical banking example that shows real understanding.\n\nTechnical vocabulary: excellent. All ACID keywords correctly used.\n\nImprovement tips: To push to excellent, add the difference between isolation levels (Read Committed vs Serializable) or explain how atomicity is implemented with write-ahead logs."
+    },
+    {
+      "question": "What is horizontal scaling vs vertical scaling?",
+      "category": "System Design Basics",
+      "difficulty": "medium",
+      "userAnswer": "Vertical scaling means adding more resources to one server like more CPU or RAM. It has limits and creates a single point of failure. Horizontal scaling means adding more servers and using a load balancer to distribute traffic. It's more resilient and theoretically unlimited but requires the application to be stateless and adds distributed systems complexity.",
+      "answerMode": "text",
+      "timeTakenSeconds": 41,
+      "scores": {
+        "semantic": 87,
+        "keyword": 83,
+        "completeness": 75,
+        "overall": 83
+      },
+      "confidence": {
+        "score": 76,
+        "filler_word_count": 0,
+        "speech_speed": "normal",
+        "feedback": "Good confident answer, covers both sides of the trade-off."
+      },
+      "plagiarism": {
+        "score": 6,
+        "ai_score": 9,
+        "is_original": true,
+        "feedback": "Answer appears original."
+      },
+      "feedback": "Overall performance: good (83/100). Well done.\n\nYour answer correctly identifies the key trade-offs. Good mention of statelessness requirement for horizontal scaling.\n\nTechnical vocabulary: good. Single point of failure, load balancer, stateless — all correct.\n\nImprovement tips: Mention a concrete example — 'Netflix horizontally scales its streaming servers' makes the answer memorable."
+    }
+  ],
+
+  "summary": {
+    "averageSemanticScore": 79,
+    "averageOverallScore": 76,
+    "averageConfidence": 72,
+    "plagiarismFlagged": 0,
+    "strongAreas": ["Frontend Development", "DBMS"],
+    "weakAreas": ["Backend Development"],
+    "overallFeedback": "Good effort! Some areas need improvement. Focus on using technical terminology and structuring your answers more clearly."
+  }
+}

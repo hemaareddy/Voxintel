@@ -1,0 +1,62 @@
+Arjun Sharma
+Email: arjun.sharma@email.com | Phone: +91-9876543210
+LinkedIn: linkedin.com/in/arjunsharma | GitHub: github.com/arjunsharma
+Location: Hyderabad, Telangana, India
+
+OBJECTIVE
+Motivated Computer Science graduate seeking a Software Engineer role in a fast-paced
+product company. Passionate about building scalable web applications and NLP systems.
+
+EDUCATION
+B.Tech in Computer Science and Engineering
+JNTU Hyderabad — 2020-2024 | CGPA: 8.4/10
+
+SKILLS
+Programming Languages: Python, JavaScript, TypeScript, Java
+Frontend: React, Next.js, HTML, CSS, Tailwind CSS, Redux
+Backend: Node.js, Express.js, Flask, FastAPI, REST API
+Databases: MongoDB, PostgreSQL, MySQL, Redis
+AI / ML / NLP: Machine Learning, NLP, SpaCy, NLTK, Scikit-learn, Pandas, NumPy
+Cloud & DevOps: AWS (EC2, S3, Lambda), Docker, Git, GitHub Actions, Linux
+Tools: Postman, Figma, VS Code, Jira
+
+PROJECTS
+
+VoxIntel — AI Interview Preparation Platform
+Technologies: React, Node.js, Express, MongoDB, Python, Flask, SpaCy, Sentence-Transformers
+- Built a full-stack interview preparation platform with resume parsing, semantic answer evaluation, and confidence analysis
+- Implemented NLP pipeline using SpaCy for skill extraction and Sentence-Transformers for cosine similarity scoring
+- Designed a real-time mock interview workflow with adaptive difficulty and personalized AI feedback
+- Added plagiarism detection using statistical heuristics (sentence variance, speed analysis, pattern detection)
+- Created an analytics dashboard with Recharts showing score trends, category breakdowns, and confidence graphs
+
+InboxIQ — AI Email Summarizer
+Technologies: Python, FastAPI, OpenAI API, React, PostgreSQL
+- Built an intelligent email summarization tool that condenses long email threads into bullet-point summaries
+- Integrated OpenAI GPT API for abstractive summarization with custom prompting
+- Designed a REST API with FastAPI and JWT authentication
+- Implemented bulk email processing with async queue using Python asyncio
+
+ClubSphere — College Club Management System
+Technologies: MERN Stack (MongoDB, Express, React, Node.js), Socket.io
+- Full-stack platform for managing college clubs, events, registrations, and announcements
+- Implemented real-time notifications using Socket.io for live event updates
+- Designed a role-based access control (RBAC) system with Admin, Club Lead, and Member roles
+- Built event attendance tracking with QR code generation and scanning
+
+EXPERIENCE
+Software Development Intern — TechAxis Solutions, Hyderabad (June 2023 – August 2023)
+- Developed RESTful APIs using Node.js and Express for a SaaS product serving 5,000+ users
+- Migrated legacy MySQL queries to MongoDB aggregation pipelines, improving query speed by 40%
+- Wrote unit tests using Jest and automated deployment with GitHub Actions CI/CD pipeline
+
+CERTIFICATIONS
+- AWS Certified Cloud Practitioner (2023)
+- Deep Learning Specialization — Coursera / deeplearning.ai (2023)
+- Python for Data Science and ML Bootcamp — Udemy (2022)
+- NPTEL: Programming in Java (Elite Certificate, 2022)
+
+ACHIEVEMENTS
+- Winner — Smart India Hackathon 2023 (Software Edition) — NLP Track
+- Top 5% — LeetCode (450+ problems solved, rating 1820)
+- Published technical articles on Medium about NLP and full-stack development
