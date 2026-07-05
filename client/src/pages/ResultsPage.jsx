@@ -16,6 +16,7 @@ export default function ResultsPage() {
 
   const summary = location.state?.summary;
   const sessionId = location.state?.sessionId;
+  const terminatedReason = location.state?.terminatedReason;
 
   const [session, setSession] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -40,7 +41,11 @@ export default function ResultsPage() {
     return (
       <div className="page-center">
         <div style={{ textAlign: "center" }}>
-          <p>No results found.</p>
+          <p>
+            {terminatedReason === "tab-switch"
+              ? "Your interview ended early due to switching tabs/apps, and we couldn't score it. You can start a new one below."
+              : "No results found."}
+          </p>
           <Link to="/setup" className="btn btn-primary" style={{ marginTop: 16 }}>Start an interview</Link>
         </div>
       </div>
@@ -62,6 +67,14 @@ export default function ResultsPage() {
           <span className="tag">RESULTS</span>
           <h1>Interview Complete</h1>
         </div>
+
+        {/* Session ended early due to a lockdown violation */}
+        {terminatedReason === "tab-switch" && (
+          <div className="alert alert-warn animate-fade-in" style={{ marginBottom: "var(--space-lg)" }}>
+            ⚠️ Your interview ended early because you switched tabs/apps or exited fullscreen
+            more than once. These are your results based on the questions you answered before then.
+          </div>
+        )}
 
         {/* Hero score */}
         <div className="card animate-fade-in-1" style={{ textAlign: "center", padding: "var(--space-xl)", marginBottom: "var(--space-lg)" }}>
@@ -143,7 +156,7 @@ export default function ResultsPage() {
                 <h3 style={{ marginBottom: "var(--space-md)" }}>Question Breakdown</h3>
                 {session?.answers?.filter((a) => a.userAnswer).map((ans, i) => (
                   <div key={i} className="card" style={{ marginBottom: "var(--space-md)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--space-md)" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-sm)", marginBottom: "var(--space-md)" }}>
                       <div style={{ flex: 1, paddingRight: "var(--space-md)" }}>
                         <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 4 }}>
                           Q{i + 1} · {ans.category}

@@ -11,6 +11,10 @@ const Question = require("../../models/Question");
 const Resume = require("../../models/Resume");
 const pythonNlpClient = require("../../services/pythonNlpClient");
 
+// Interview types that mean "coding-only" — every question is a hands-on
+// programming problem (Monaco editor + sandboxed execution), not text Q&A.
+const CODING_INTERVIEW_TYPES = new Set(["Coding Interview", "Coding Round"]);
+
 // ── Start Interview Session ──────────────────────────────────
 // POST /api/interview/start
 // Body: { resumeId, role, company, interviewType, difficulty, questionCount }
@@ -39,6 +43,10 @@ const startSession = async (req, res) => {
       res.status(404);
       throw new Error("Resume not found");
     }
+  }
+
+  if (CODING_INTERVIEW_TYPES.has(interviewType)) {
+    return startCodingSession({ req, res, resumeData, role, company, interviewType, difficulty, questionCount });
   }
 
   // ── Question Selection ────────────────────────────────────
@@ -185,6 +193,19 @@ const startSession = async (req, res) => {
     questionSourceDistribution = { resume: 0, dataset: finalQuestions.length };
   }
 
+  // ── Adaptive Follow-up Eligibility ──────────────────────────
+  // Resume-based questions get a follow-up (they're personalized, so a
+  // follow-up can probe deeper into the candidate's own experience). If
+  // fewer than MIN_FOLLOWUPS questions are resume-based (e.g. no resume
+  // was provided), extend eligibility to the first few dataset questions
+  // so every session guarantees at least MIN_FOLLOWUPS follow-ups.
+  const MIN_FOLLOWUPS = 3;
+  const followUpTarget = Math.min(MIN_FOLLOWUPS, finalQuestions.length);
+  const followUpEligibleFlags = finalQuestions.map((q) => q.source === "resume");
+  for (let i = 0; i < followUpEligibleFlags.length && followUpEligibleFlags.filter(Boolean).length < followUpTarget; i++) {
+    if (!followUpEligibleFlags[i]) followUpEligibleFlags[i] = true;
+  }
+
   // Create the session in the database
   const sessionData = {
     user: req.user._id,
@@ -196,12 +217,17 @@ const startSession = async (req, res) => {
       difficulty: effectiveDifficulty,
       questionCount: finalQuestions.length,
     },
-    answers: finalQuestions.map((q) => ({
+    answers: finalQuestions.map((q, idx) => ({
       questionId: q.questionId || q._id || "",
       question: q.question,
       category: q.category,
       difficulty: q.difficulty,
       source: q.source || "dataset",
+      followUpEligible: followUpEligibleFlags[idx],
+      // Captured now because resume-generated questions have no Question
+      // document to re-fetch this from later (see answerSchema's comment).
+      idealAnswer: q.ideal_answer || "",
+      keywords: q.keywords || [],
     })),
     questionSourceDistribution,
     status: "in_progress",
@@ -234,6 +260,93 @@ const startSession = async (req, res) => {
     config: session.config,
     // Phase 1: expose intelligence + distribution to the frontend
     candidateIntelligence: session.candidateIntelligence || null,
+    questionSourceDistribution,
+  });
+};
+
+// ── Start a Coding-Only Session ──────────────────────────────
+// Every question is a hands-on programming problem, selected 60% from the
+// static bank / 40% prioritized toward the candidate's resume skills (see
+// coding_question_generator.py). No dataset Question lookup. Code
+// submissions are graded by actually running them (see
+// codeExecutionService.js), not by keyword/semantic matching.
+//
+// "Coding Interview" vs "Coding Round" — the only behavioral difference:
+// Coding Interview marks every question follow-up-eligible (an adaptive
+// question about complexity/edge cases/optimization after each submission,
+// answered in prose — see answerController's submitCodeAnswer); Coding
+// Round has no follow-ups at all, a straight timed-assessment feel.
+const CODING_TYPES_WITH_FOLLOWUPS = new Set(["Coding Interview"]);
+
+const startCodingSession = async ({ req, res, resumeData, role, company, interviewType, difficulty, questionCount }) => {
+  const skills = (resumeData && resumeData.status === "parsed" && resumeData.parsed && resumeData.parsed.skills) || [];
+  const followUpsEnabled = CODING_TYPES_WITH_FOLLOWUPS.has(interviewType);
+
+  let codingQuestions = [];
+  try {
+    const data = await pythonNlpClient.generateCodingQuestions({ skills, count: questionCount });
+    codingQuestions = data.questions || [];
+  } catch (err) {
+    console.error(`Coding question generation failed: ${err.message}`);
+    res.status(502);
+    throw new Error("Could not generate coding questions. Please try again.");
+  }
+
+  if (codingQuestions.length === 0) {
+    res.status(502);
+    throw new Error("No coding questions are available right now. Please try again.");
+  }
+
+  const resumeCount = codingQuestions.filter((q) => q.source === "resume").length;
+  const questionSourceDistribution = { resume: resumeCount, dataset: codingQuestions.length - resumeCount };
+
+  const sessionData = {
+    user: req.user._id,
+    resume: resumeData ? resumeData._id : null,
+    config: {
+      role,
+      company,
+      interviewType,
+      difficulty,
+      questionCount: codingQuestions.length,
+    },
+    answers: codingQuestions.map((q) => ({
+      question: q.prompt,
+      category: q.category,
+      difficulty: q.difficulty,
+      source: q.source || "dataset",
+      type: "coding",
+      functionName: q.function_name,
+      starterCode: q.starter_code,
+      compareMode: q.compare_mode || "exact",
+      testCases: q.test_cases || [],
+      hiddenTestCases: q.hidden_test_cases || [],
+      expectedConcepts: q.expected_concepts || [],
+      followUpEligible: followUpsEnabled,
+    })),
+    questionSourceDistribution,
+    status: "in_progress",
+  };
+
+  const session = await InterviewSession.create(sessionData);
+
+  res.status(201).json({
+    sessionId: session._id,
+    questions: codingQuestions.map((q, idx) => ({
+      index: idx,
+      question: q.prompt,
+      title: q.title,
+      category: q.category,
+      difficulty: q.difficulty,
+      source: q.source || "dataset",
+      type: "coding",
+      functionName: q.function_name,
+      starterCode: q.starter_code,
+      testCases: q.test_cases || [], // hidden_test_cases stay server-side only
+      expectedConcepts: q.expected_concepts || [],
+    })),
+    config: session.config,
+    candidateIntelligence: null,
     questionSourceDistribution,
   });
 };

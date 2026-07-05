@@ -20,6 +20,26 @@ from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
+# Common words that carry no real subject-matter content on their own —
+# used to detect near-empty/gibberish answers (e.g. "k", "idk", "ok") that
+# SBERT can otherwise embed as spuriously similar to a real answer (a very
+# short or out-of-vocabulary token doesn't land far from *everything* in
+# embedding space, so raw cosine similarity alone isn't a reliable signal
+# for near-zero-content input).
+_STOPWORDS = {
+    "a", "an", "the", "is", "it", "im", "i'm", "to", "of", "in", "on", "for",
+    "and", "or", "but", "so", "ok", "okay", "k", "kk", "yes", "no", "yeah",
+    "idk", "um", "uh", "well", "just", "like", "that", "this", "be", "am",
+    "are", "was", "were", "not", "sure", "maybe",
+}
+
+
+def _content_word_count(text: str) -> int:
+    """Count words that aren't stopwords/filler — a proxy for how much real
+    subject-matter content an answer actually contains."""
+    words = re.findall(r"[a-zA-Z']+", text.lower())
+    return sum(1 for w in words if w not in _STOPWORDS and len(w) > 1)
+
 # ── Model Loading (Lazy, with Fallback) ─────────────────────
 
 _sbert_model = None  # loaded on first use
@@ -148,6 +168,20 @@ def evaluate_answer(user_answer: str, ideal_answer: str, keywords: List[str]) ->
     semantic_raw = compute_semantic_similarity(user_answer, ideal_answer)
     keyword_raw = compute_keyword_score(user_answer, keywords)
     completeness_raw = compute_completeness_score(user_answer, ideal_answer)
+
+    # SBERT embeds even a single meaningless token ("k", "idk") somewhere in
+    # semantic space that isn't orthogonal to a real answer, so raw cosine
+    # similarity alone can look deceptively decent (~0.3-0.4) for answers with
+    # no real content. Cap (never raise) the semantic score based on how much
+    # actual subject-matter content the answer contains, so a near-empty
+    # answer can't score respectably just because SBERT didn't hate it.
+    content_words = _content_word_count(user_answer)
+    if content_words == 0:
+        semantic_raw = min(semantic_raw, 0.05)
+    elif content_words == 1:
+        semantic_raw = min(semantic_raw, 0.30)
+    elif content_words == 2:
+        semantic_raw = min(semantic_raw, 0.55)
 
     # Convert to 0-100 scale
     semantic_score = round(semantic_raw * 100)

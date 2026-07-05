@@ -24,17 +24,28 @@ const completeSession = async (req, res) => {
     throw new Error("Session not found");
   }
 
-  // Calculate session summary (deterministic aggregation)
-  const answeredQuestions = session.answers.filter((a) => a.userAnswer);
-  const count = answeredQuestions.length || 1;
+  // Calculate session summary (deterministic aggregation).
+  // Each answered follow-up counts as an additional graded item in the
+  // same category as its parent question (follow-ups are scored the same
+  // way a normal answer is — see answerController.submitFollowUpAnswer).
+  const gradedItems = [];
+  session.answers.forEach((a) => {
+    if (a.userAnswer) {
+      gradedItems.push({ category: a.category, scores: a.scores, plagiarism: a.plagiarism });
+    }
+    if (a.followUp && a.followUp.userAnswer) {
+      gradedItems.push({ category: a.category, scores: a.followUp.scores, plagiarism: a.followUp.plagiarism });
+    }
+  });
+  const count = gradedItems.length || 1;
 
-  const avgSemantic = answeredQuestions.reduce((s, a) => s + a.scores.semantic, 0) / count;
-  const avgOverall = answeredQuestions.reduce((s, a) => s + a.scores.overall, 0) / count;
-  const plagiarismFlagged = answeredQuestions.filter((a) => !a.plagiarism.isOriginal).length;
+  const avgSemantic = gradedItems.reduce((s, a) => s + a.scores.semantic, 0) / count;
+  const avgOverall = gradedItems.reduce((s, a) => s + a.scores.overall, 0) / count;
+  const plagiarismFlagged = gradedItems.filter((a) => !a.plagiarism.isOriginal).length;
 
   // Find weak and strong areas by category
   const categoryScores = {};
-  answeredQuestions.forEach((a) => {
+  gradedItems.forEach((a) => {
     if (!categoryScores[a.category]) categoryScores[a.category] = [];
     categoryScores[a.category].push(a.scores.overall);
   });
@@ -87,7 +98,11 @@ const updateUserStats = async (userId) => {
   if (sessions.length === 0) return;
 
   const totalInterviews = sessions.length;
-  const totalQuestions = sessions.reduce((s, sess) => s + sess.answers.filter((a) => a.userAnswer).length, 0);
+  const totalQuestions = sessions.reduce((s, sess) => {
+    const answered = sess.answers.filter((a) => a.userAnswer).length;
+    const followUpsAnswered = sess.answers.filter((a) => a.followUp && a.followUp.userAnswer).length;
+    return s + answered + followUpsAnswered;
+  }, 0);
   const avgScore = sessions.reduce((s, sess) => s + (sess.summary.averageOverallScore || 0), 0) / totalInterviews;
 
   await User.findByIdAndUpdate(userId, {

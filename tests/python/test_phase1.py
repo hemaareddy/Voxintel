@@ -323,7 +323,7 @@ class TestHybridQuestionGeneration:
         questions = generate_hybrid_questions(intermediate_parsed, intel, sample_dataset_questions, count=10)
         resume_qs = [q for q in questions if q.get("source") == SOURCE_RESUME]
         dataset_qs = [q for q in questions if q.get("source") == SOURCE_DATASET]
-        # 60/40 split: 6 resume + 4 dataset for count=10
+        # 50/50 split: 5 resume + 5 dataset for count=10
         assert len(resume_qs) >= 1  # must have at least some resume questions
         assert len(dataset_qs) >= 1  # must have at least some dataset questions
         # Total should not exceed count
@@ -339,7 +339,7 @@ class TestHybridQuestionGeneration:
     def test_proportional_distribution(self, intermediate_parsed, sample_dataset_questions):
         intel = generate_intelligence(intermediate_parsed)
         for count in [5, 10, 20]:
-            expected_resume = math.ceil(count * 0.6)
+            expected_resume = math.ceil(count * 0.5)
             expected_dataset = count - expected_resume
             questions = generate_hybrid_questions(intermediate_parsed, intel, sample_dataset_questions, count=count)
             resume_qs = [q for q in questions if q.get("source") == SOURCE_RESUME]

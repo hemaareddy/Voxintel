@@ -147,15 +147,22 @@ export default function SetupPage() {
               <option value="">-- Select type --</option>
               {INTERVIEW_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
-            {CODING_TYPES.has(config.interviewType) && (
+            {config.interviewType === "Coding Interview" && (
               <p style={{ fontSize: "0.78rem", color: "var(--accent)", marginTop: 4 }}>
-                💻 Coding-only mode — all questions will be hands-on programming problems.
+                💻 Coding-only mode — hands-on programming problems, each followed by a question
+                about your approach (complexity, edge cases, optimization), like a live interview.
+              </p>
+            )}
+            {config.interviewType === "Coding Round" && (
+              <p style={{ fontSize: "0.78rem", color: "var(--accent)", marginTop: 4 }}>
+                💻 Coding-only mode — a straight timed problem set, no follow-up discussion,
+                like a screening assessment.
               </p>
             )}
           </Field>
 
-          {/* Difficulty + Question count — side by side */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-md)" }}>
+          {/* Difficulty + Question count — side by side on wider screens, stacked on mobile */}
+          <div className="setup-grid-2">
             <Field label="Difficulty">
               <select name="difficulty" value={config.difficulty} onChange={handleChange}>
                 {DIFFICULTIES.map((d) => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}

@@ -9,8 +9,19 @@ description: Day-to-day workflow for running, seeding, and testing VoxIntel's th
 
 ```bash
 npm run install:all   # installs root, server/, and client/ node_modules
-cd python_services && pip install -r requirements.txt && python -m spacy download en_core_web_sm && cd ..
+
+cd python_services
+py -3.12 -m venv .venv   # pick a Python version with prebuilt spacy/scikit-learn/
+                          # sentence-transformers wheels (3.10-3.12 as of writing) —
+                          # very new Python releases often lack wheels and fail to
+                          # build `blis` from source
+.venv/Scripts/python.exe -m pip install -r requirements.txt   # .venv/bin/python on macOS/Linux
+.venv/Scripts/python.exe -m spacy download en_core_web_sm
+cd ..
 ```
+
+If `spacy download` fails with a malformed download URL, install the model wheel
+directly: `.venv/Scripts/python.exe -m pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl`
 
 Copy each service's env template and fill in values (defaults work for local dev
 against a local MongoDB):
@@ -35,7 +46,7 @@ Or individually, useful when you only need to iterate on one service:
 ```bash
 npm run server     # Node/Express on :5000, via nodemon
 npm run client     # React dev server on :3000
-npm run python     # Flask NLP service on :5001
+npm run python     # Flask NLP service on :5001 (runs python_services/.venv/Scripts/python.exe)
 ```
 
 Requires a running MongoDB instance reachable at `server/.env`'s `MONGO_URI`.

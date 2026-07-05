@@ -4,16 +4,16 @@ hybrid_question_generator.py
 Phase 1 — Hybrid Personalized Interview Generation
 
 Produces interview question lists that combine:
-  60% Resume-Based Questions  — from skills, projects, experience, certifications
-  40% Dataset-Based Questions — from the Node.js Question DB (passed in as JSON)
+  50% Resume-Based Questions  — from skills, projects, experience, certifications
+  50% Dataset-Based Questions — from the Node.js Question DB (passed in as JSON)
 
 The Python service does NOT have direct DB access.
 The Node.js caller passes the dataset questions as part of the request payload.
 
 Distribution rules:
-  10 questions → 6 resume + 4 dataset
-  20 questions → 12 resume + 8 dataset
-  Any N        → ceil(N * 0.6) resume + floor(N * 0.4) dataset
+  10 questions → 5 resume + 5 dataset
+  20 questions → 10 resume + 10 dataset
+  Any N        → ceil(N * 0.5) resume + floor(N * 0.5) dataset
 
 Source tracking:
   Every returned question has a "source" field: "resume" | "dataset"
@@ -413,12 +413,12 @@ def generate_hybrid_questions(
     Main entry point for Hybrid Question Generation.
 
     Distribution:
-      resume_count  = ceil(count * 0.6)
+      resume_count  = ceil(count * 0.5)
       dataset_count = count - resume_count
 
     Returns a shuffled list with source tracking.
     """
-    resume_count = math.ceil(count * 0.6)
+    resume_count = math.ceil(count * 0.5)
     dataset_count = count - resume_count
 
     logger.info(

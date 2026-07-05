@@ -65,9 +65,47 @@ const evaluateAnswer = async ({ userAnswer, idealAnswer, keywords, answerMode, t
   return response.data;
 };
 
+// POST /generate-followup — adaptive follow-up question based on keyword coverage
+const generateFollowup = async ({ userAnswer, keywords }) => {
+  const response = await axios.post(
+    `${PYTHON_URL}/generate-followup`,
+    { user_answer: userAnswer, keywords },
+    { timeout: 15000 }
+  );
+  return response.data;
+};
+
+// POST /generate-coding-questions — 60% static + 40% skill-matched coding problems
+const generateCodingQuestions = async ({ skills, count }) => {
+  const response = await axios.post(
+    `${PYTHON_URL}/generate-coding-questions`,
+    { skills: skills || [], count },
+    { timeout: 15000 }
+  );
+  return response.data;
+};
+
+// POST /generate-code-followup — adaptive follow-up for a coding submission (Coding Interview only)
+const generateCodeFollowup = async ({ passedCount, totalCount, expectedConcepts, firstPublicFailure }) => {
+  const response = await axios.post(
+    `${PYTHON_URL}/generate-code-followup`,
+    {
+      passed_count: passedCount,
+      total_count: totalCount,
+      expected_concepts: expectedConcepts || [],
+      first_public_failure: firstPublicFailure || null,
+    },
+    { timeout: 15000 }
+  );
+  return response.data;
+};
+
 module.exports = {
   parseResume,
   analyzeIntelligence,
   generateHybridQuestions,
   evaluateAnswer,
+  generateFollowup,
+  generateCodingQuestions,
+  generateCodeFollowup,
 };

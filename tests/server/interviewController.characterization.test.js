@@ -77,7 +77,7 @@ describe("submitAnswer", () => {
     status: "in_progress",
     answers: [
       {
-        questionId: "q0",
+        questionId: "507f1f77bcf86cd799439011",
         question: "Explain closures.",
         category: "Frontend Development",
         userAnswer: "",
@@ -124,6 +124,60 @@ describe("submitAnswer", () => {
       })
     );
     expect(session.save).toHaveBeenCalled();
+  });
+
+  test("a resume-generated question (no backing Question doc) evaluates using its own stored idealAnswer/keywords", async () => {
+    const session = {
+      _id: "session1",
+      user: "user1",
+      status: "in_progress",
+      answers: [
+        {
+          questionId: "", // resume-generated questions have no Question document
+          question: "How does Node.js handle thousands of concurrent connections with a single thread?",
+          category: "Backend Development",
+          source: "resume",
+          idealAnswer: "Candidate should demonstrate hands-on experience with node.js.",
+          keywords: ["event loop", "non-blocking", "libuv"],
+          userAnswer: "",
+          scores: {},
+          confidence: {},
+          plagiarism: {},
+          feedback: "",
+        },
+      ],
+      save: jest.fn().mockResolvedValue(true),
+    };
+    jest.spyOn(InterviewSession, "findOne").mockResolvedValue(session);
+    const findByIdSpy = jest.spyOn(Question, "findById");
+    axios.post.mockResolvedValue({
+      data: {
+        semantic_score: 5, keyword_score: 0, completeness_score: 3, overall_score: 3,
+        confidence: { score: null }, plagiarism: { score: 0, isOriginal: true }, feedback: "Poor answer.",
+      },
+    });
+
+    const req = {
+      body: { sessionId: "session1", questionIndex: 0, userAnswer: "hgh gh" },
+      user: { _id: "user1" },
+    };
+    const res = mockRes();
+
+    await submitAnswer(req, res);
+
+    // The evaluator was called with the question's own concepts/ideal answer,
+    // not empty strings — this is what was broken (both fell back to "" because
+    // Question.findById("") returns nothing for resume-generated questions).
+    expect(axios.post).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        ideal_answer: "Candidate should demonstrate hands-on experience with node.js.",
+        keywords: ["event loop", "non-blocking", "libuv"],
+      }),
+      expect.anything()
+    );
+    // No live DB lookup needed since the values were already on the answer entry.
+    expect(findByIdSpy).not.toHaveBeenCalled();
   });
 
   test("falls back to keyword-only scoring when the Python service is unreachable", async () => {

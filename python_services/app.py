@@ -5,6 +5,9 @@ Flask API that provides AI-assisted endpoints:
   - /evaluate-answer    : Semantic evaluation of interview answers
   - /analyze-confidence : Confidence analysis from text patterns
   - /check-plagiarism   : Plagiarism and AI-content detection
+  - /generate-followup  : Adaptive follow-up question based on keyword coverage
+  - /generate-coding-questions : Select coding problems (60% static, 40% skill-matched)
+  - /generate-code-followup : Adaptive follow-up for a coding submission (Coding Interview only)
 
 Run with: python app.py (starts on port 5001)
 """
@@ -26,6 +29,9 @@ from feedback_generator import generate_feedback
 from question_generator import generate_interview_questions, get_company_context
 from resume_intelligence import generate_intelligence
 from hybrid_question_generator import generate_hybrid_questions
+from followup_generator import generate_followup_question
+from coding_question_generator import generate_coding_questions
+from code_followup_generator import generate_code_followup
 
 # ── Flask Setup ─────────────────────────────────────────────
 
@@ -100,8 +106,26 @@ def evaluate():
         # Step 1: Semantic + keyword evaluation
         eval_result = evaluate_answer(user_answer, ideal_answer, keywords)
 
-        # Step 2: Confidence analysis (from text patterns)
-        confidence_result = analyze_confidence(user_answer, time_taken, answer_mode)
+        # Step 2: Confidence analysis (from text patterns). Only meaningful for
+        # voice answers — filler words/hedging/pacing are communication signals
+        # that don't apply to typed text, so a text answer gets no confidence
+        # score at all (score: None) rather than a misleading number. Both the
+        # client's confidence bar and generate_feedback()'s confidence
+        # paragraph already skip rendering when score is None.
+        if answer_mode == "voice":
+            confidence_result = analyze_confidence(user_answer, time_taken, answer_mode)
+        else:
+            confidence_result = {
+                "score": None,
+                "filler_word_count": 0,
+                "hedging_count": 0,
+                "confidence_signal_count": 0,
+                "speech_speed": None,
+                "wpm": None,
+                "time_flag": None,
+                "feedback": None,
+                "suggestions": [],
+            }
 
         # Step 3: Plagiarism / AI detection
         plagiarism_result = check_plagiarism(user_answer, time_taken)
@@ -248,6 +272,83 @@ def generate_questions_hybrid_endpoint():
         })
     except Exception as e:
         logger.error(f"Hybrid question generation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/generate-coding-questions", methods=["POST"])
+def generate_coding_questions_endpoint():
+    """
+    Select a set of hands-on coding problems for a Coding Interview/Round
+    session: 60% from the static bank, 40% prioritized toward the candidate's
+    resume skills. Expects JSON: { skills: [...], count: 10 }
+    Returns: { questions: [...], count: N }
+    Each question includes hidden_test_cases — the Node caller must strip
+    those before sending the response to the frontend, keeping them
+    server-side for grading.
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
+
+    try:
+        questions = generate_coding_questions(
+            skills=data.get("skills", []),
+            count=int(data.get("count", 10)),
+        )
+        return jsonify({"questions": questions, "count": len(questions)})
+    except Exception as e:
+        logger.error(f"Coding question generation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/generate-followup", methods=["POST"])
+def generate_followup_endpoint():
+    """
+    Generate an adaptive follow-up question based on keyword coverage in
+    the candidate's answer to the current question.
+    Expects JSON: { user_answer, keywords }
+    Returns: { question, based_on }
+    Called by Node.js after evaluating a follow-up-eligible answer.
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
+
+    try:
+        result = generate_followup_question(
+            data.get("user_answer", ""),
+            data.get("keywords", []),
+        )
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Follow-up generation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/generate-code-followup", methods=["POST"])
+def generate_code_followup_endpoint():
+    """
+    Generate an adaptive follow-up question for a coding-round submission
+    (Coding Interview sessions only — see sessionController.js).
+    Expects JSON: { passed_count, total_count, expected_concepts, first_public_failure }
+    `first_public_failure` (optional): { args, expected } from a *public*
+    test case only — never pass hidden test case details here.
+    Returns: { question, based_on }
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
+
+    try:
+        result = generate_code_followup(
+            passed_count=int(data.get("passed_count", 0)),
+            total_count=int(data.get("total_count", 0)),
+            expected_concepts=data.get("expected_concepts", []),
+            first_public_failure=data.get("first_public_failure"),
+        )
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Code follow-up generation error: {e}")
         return jsonify({"error": str(e)}), 500
 
 

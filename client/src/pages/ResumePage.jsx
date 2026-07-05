@@ -179,7 +179,7 @@ export default function ResumePage() {
                       }}
                       onClick={() => loadResumeDetails(r._id)}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "var(--space-sm)" }}>
                         <div>
                           <div style={{ fontWeight: 500, fontSize: "0.9rem" }}>{r.originalFilename}</div>
                           <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginTop: 2 }}>

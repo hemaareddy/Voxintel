@@ -7,7 +7,7 @@
     "start": "cd server && npm start",
     "server": "cd server && npm run dev",
     "seed": "cd server && npm run seed",
-    "python": "cd python_services && python app.py",
+    "python": "cd python_services && .venv\\Scripts\\python.exe app.py",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run python\"",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",

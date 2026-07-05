@@ -9,12 +9,17 @@ technical interviews with AI-powered feedback, semantic evaluation, and analytic
 
 - Resume upload and NLP-based skill extraction
 - Role/company-specific question generation (66 seeded questions across 10 domains, plus resume-derived hybrid generation)
+- Coding-only interview mode (Monaco code editor, real code execution against test cases,
+  solvable in JavaScript, Python, or Java — any one of them graded as correct)
+- Adaptive follow-up questions based on keyword coverage in your answer
 - Mock interview with text + voice input
 - Semantic answer evaluation (sentence-transformer embeddings + cosine similarity)
 - Confidence analysis (speech speed, pauses, filler words)
 - Plagiarism & AI-generated response detection
 - Analytics dashboard (trends, weak areas, history)
 - Company-specific interview mode (Google, Amazon, TCS, etc.)
+- Interview lockdown: fullscreen enforcement + tab/window-switch detection, with a
+  warning on the first violation and automatic session-end on the second
 
 ---
 
@@ -72,6 +77,13 @@ VoxIntel/
 - Node.js >= 18
 - Python >= 3.9
 - MongoDB (local or Atlas URI)
+- To grade coding-round submissions in Python or Java, the server also needs
+  a system `python` and a JDK (`javac`/`java`) on `PATH` — separate from the
+  `python_services/.venv` used for the NLP service. Without these, candidates
+  can still solve coding questions in JavaScript; picking Python/Java without
+  the matching toolchain installed returns a clear "interpreter/compiler not
+  found" grading error instead of a crash. C isn't offered as a language
+  option at all (no C compiler dependency in this project).
 
 ### 1. Clone & install
 
@@ -92,13 +104,28 @@ npm run server               # starts on :5000
 
 ### 3. Python NLP Service
 
+Use a virtual environment on a Python version with prebuilt `spacy`/`scikit-learn`/
+`sentence-transformers` wheels available (3.10–3.12 as of writing — very new Python
+releases often don't have wheels yet and will fail to build `blis` from source).
+
 ```bash
 cd python_services
+py -3.12 -m venv .venv       # or `python3.12 -m venv .venv` outside Windows
 cp .env.example .env        # optional — sensible defaults are used if unset
-pip install -r requirements.txt
-python -m spacy download en_core_web_sm
-python app.py               # starts on :5001
+.venv/Scripts/python.exe -m pip install -r requirements.txt   # .venv/bin/python on macOS/Linux
+.venv/Scripts/python.exe -m spacy download en_core_web_sm
+.venv/Scripts/python.exe app.py               # starts on :5001
 ```
+
+`npm run python` / `npm run dev` already invoke `python_services\.venv\Scripts\python.exe`
+directly (Windows path — the npm scripts in this repo assume a Windows dev machine), so
+once the venv above is set up, `npm run dev` picks it up automatically. On macOS/Linux,
+edit the `"python"` script in the root `package.json` to point at `.venv/bin/python`
+instead, or just run `python_services/.venv/bin/python app.py` manually.
+
+If `spacy download` fails to resolve a model version (a malformed download URL), install
+the model wheel directly instead:
+`.venv/Scripts/python.exe -m pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl`
 
 ### 4. Frontend (React)
 

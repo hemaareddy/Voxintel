@@ -244,31 +244,33 @@ export default function AnalyticsPage() {
           <div className="animate-fade-in-4">
             <h3 style={{ marginBottom: "var(--space-md)" }}>Recent Sessions</h3>
             <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-elevated)" }}>
-                    {["Role", "Company", "Type", "Score", "Questions", "Date"].map((h) => (
-                      <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 500, letterSpacing: "0.06em" }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recentSessions.map((s, i) => (
-                    <tr key={s._id} style={{ borderBottom: i < data.recentSessions.length - 1 ? "1px solid var(--border)" : "none" }}>
-                      <td style={{ padding: "12px 16px", fontSize: "0.88rem", fontWeight: 500 }}>{s.role}</td>
-                      <td style={{ padding: "12px 16px", fontSize: "0.85rem", color: "var(--text-secondary)" }}>{s.company}</td>
-                      <td style={{ padding: "12px 16px", fontSize: "0.82rem", color: "var(--text-muted)" }}>{s.interviewType}</td>
-                      <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontWeight: 600, color: getBarColor(s.score) }}>{s.score}</td>
-                      <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "0.82rem", color: "var(--text-muted)" }}>{s.questionsAnswered}</td>
-                      <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                        {new Date(s.date).toLocaleDateString()}
-                      </td>
+              <div className="table-scroll">
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-elevated)" }}>
+                      {["Role", "Company", "Type", "Score", "Questions", "Date"].map((h) => (
+                        <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 500, letterSpacing: "0.06em" }}>
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data.recentSessions.map((s, i) => (
+                      <tr key={s._id} style={{ borderBottom: i < data.recentSessions.length - 1 ? "1px solid var(--border)" : "none" }}>
+                        <td style={{ padding: "12px 16px", fontSize: "0.88rem", fontWeight: 500 }}>{s.role}</td>
+                        <td style={{ padding: "12px 16px", fontSize: "0.85rem", color: "var(--text-secondary)" }}>{s.company}</td>
+                        <td style={{ padding: "12px 16px", fontSize: "0.82rem", color: "var(--text-muted)" }}>{s.interviewType}</td>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontWeight: 600, color: getBarColor(s.score) }}>{s.score}</td>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "0.82rem", color: "var(--text-muted)" }}>{s.questionsAnswered}</td>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                          {new Date(s.date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

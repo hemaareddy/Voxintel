@@ -102,9 +102,9 @@ export default function LandingPage() {
         borderBottom: "1px solid var(--border)",
         padding: "0 var(--space-lg)",
       }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", height: 62, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="landing-nav" style={{ maxWidth: 1120, margin: "0 auto", minHeight: 62, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", fontWeight: 800, letterSpacing: "-0.03em", display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--gradient-primary)", display: "inline-block", boxShadow: "0 0 8px rgba(91,108,249,0.5)" }} />
+            <img src="/logo.jpg" alt="VoxIntel" style={{ height: 32, width: 32, objectFit: "cover", borderRadius: 8 }} />
             VoxIntel
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -158,7 +158,7 @@ export default function LandingPage() {
       {/* ── Stats ───────────────────────────────────────── */}
       <section style={{ padding: "0 var(--space-lg) 80px" }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+          <div className="landing-stats-grid">
             {[
               { value: sessions.toLocaleString() + "+", label: "Practice Sessions" },
               { value: companies + "+", label: "Company Profiles" },
@@ -203,7 +203,7 @@ export default function LandingPage() {
       {/* ── Demo Preview ────────────────────────────────── */}
       <section style={{ padding: "96px var(--space-lg)" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
+          <div className="landing-demo-grid">
             {/* Left: description */}
             <div>
               <div className="badge badge-accent" style={{ marginBottom: 16 }}>Live Preview</div>

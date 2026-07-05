@@ -129,10 +129,53 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
 .gap-lg { gap: var(--space-lg); }
 .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: var(--space-lg); }
 .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--space-md); }
+
+/* ── Responsive breakpoints ──────────────────────────────────
+   Two steps: tablet (<=768px) narrows things down a notch;
+   mobile (<=560px) collapses multi-column layouts to a single
+   column and trims spacing/type scale for small screens. */
 @media (max-width: 768px) {
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
   h1 { font-size: 1.9rem; }
   h2 { font-size: 1.5rem; }
+  .page { padding: var(--space-lg) 0; }
+  .question-card { padding: var(--space-lg); }
+  .container, .container-sm { padding: 0 var(--space-md); }
+}
+
+@media (max-width: 560px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.3rem; }
+  h3 { font-size: 1.1rem; }
+  .stat-card .stat-value { font-size: 1.7rem; }
+  .timer { font-size: 1.3rem; }
+  .question-card { padding: var(--space-md); }
+  .btn-lg { padding: 12px 22px; }
+}
+
+/* Wraps wide content (tables, code) so it scrolls inside itself
+   instead of forcing the page to scroll horizontally. */
+.table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── Landing page ────────────────────────────────────────────
+   A few sections use hardcoded multi-column grids (inline styles,
+   since the rest of the page is inline-styled) that need explicit
+   breakpoints rather than the generic .grid-2/.grid-3 collapse. */
+.landing-nav { flex-wrap: wrap; row-gap: var(--space-sm); }
+
+/* ── Setup page ──────────────────────────────────────────────
+   Difficulty + question-count selects sit side by side on wider
+   screens, stack on narrow ones. */
+.setup-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+@media (max-width: 480px) {
+  .setup-grid-2 { grid-template-columns: 1fr; }
+}
+.landing-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.landing-demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+@media (max-width: 640px) {
+  .landing-stats-grid { grid-template-columns: 1fr; gap: 14px; }
+  .landing-demo-grid { grid-template-columns: 1fr; gap: 32px; }
 }
 
 /* ── Card ────────────────────────────────────────────────── */
@@ -293,6 +336,11 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(91,108,249,0.5);
 }
+.navbar-logo {
+  height: 32px; width: 32px;
+  object-fit: cover;
+  border-radius: 8px;
+}
 .navbar-links { display: flex; align-items: center; gap: var(--space-md); list-style: none; }
 .navbar-links a {
   color: var(--text-secondary);
@@ -304,6 +352,63 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
 }
 .navbar-links a:hover { color: var(--text-primary); background: var(--bg-elevated); }
 .navbar-links a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+
+/* Desktop: links + user controls (brand's sibling wrapper) sit inline in
+   one row. The mobile media query below overrides this to a stacked
+   dropdown — without this rule the wrapper falls back to a block <div>,
+   stacking .navbar-links and .navbar-user on separate lines even on desktop. */
+.navbar-collapsible { display: flex; align-items: center; gap: var(--space-lg); }
+
+/* Hamburger toggle — hidden on desktop, shown once the links/user controls
+   no longer fit comfortably in one row. */
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text-primary);
+}
+.navbar-toggle svg { display: block; }
+
+@media (max-width: 768px) {
+  .navbar-toggle { display: inline-flex; }
+  .navbar-inner { height: 58px; }
+
+  /* Links + user controls collapse into a dropdown panel under the bar,
+     toggled by .navbar-toggle. Both share .navbar-collapsible so the
+     component doesn't need two separate open/close states. */
+  .navbar-collapsible {
+    display: none;
+    position: absolute;
+    top: 58px; left: 0; right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-card);
+  }
+  .navbar-collapsible.open { display: flex; }
+  .navbar-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
+    width: 100%;
+  }
+  .navbar-links a { padding: 10px 12px; }
+  .navbar-user {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+    width: 100%;
+    padding-top: var(--space-sm);
+    margin-top: var(--space-xs);
+    border-top: 1px solid var(--border);
+  }
+  .navbar-user .btn { width: 100%; }
+}
 
 /* ── Page Header ─────────────────────────────────────────── */
 .page-header { margin-bottom: var(--space-xl); }
